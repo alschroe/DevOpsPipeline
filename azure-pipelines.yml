@@ -19,11 +19,11 @@ steps:
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Subscription'
-    azureResourceManagerConnection: '$(subscriptionname)($(subscriptionid))'
-    subscriptionId: '$(subscriptionid)'
+    azureResourceManagerConnection: 'AzureInternal(921b1060-fc07-42c5-8bad-c255bbf99a42)'
+    subscriptionId: '921b1060-fc07-42c5-8bad-c255bbf99a42'
     location: 'North Europe'
-    templateLocation: 'Linked artifact'
-    csmFile: 'template.json'
+    templateLocation: 'URL of the file'
+    csmFileLink: 'https://github.com/alschroe/DevOpsPipeline/blob/master/template.json'
     deploymentMode: 'Incremental'
 
 - task: DotNetCoreCLI@2
