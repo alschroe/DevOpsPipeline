@@ -19,8 +19,8 @@ steps:
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Subscription'
-    azureResourceManagerConnection: 'SubscriptionName(SubscriptionID)'
-    subscriptionId: 'SubscriptionID'
+    azureResourceManagerConnection: '$(subscriptionname)($(subscriptionid))'
+    subscriptionId: '$(subscriptionid)'
     location: 'North Europe'
     templateLocation: 'Linked artifact'
     csmFile: 'template.json'
