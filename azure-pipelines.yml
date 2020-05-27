@@ -18,11 +18,9 @@ steps:
 
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
-    deploymentScope: 'Resource Group'
-    azureResourceManagerConnection: 'SubscriptionName(Subscription-ID)'
-    subscriptionId: 'Subscription-ID'
-    action: 'Create Or Update Resource Group'
-    resourceGroupName: 'DevOpsDemo'
+    deploymentScope: 'Subscription'
+    azureResourceManagerConnection: 'SubscriptionName(SubscriptionID)'
+    subscriptionId: 'SubscriptionID'
     location: 'North Europe'
     templateLocation: 'Linked artifact'
     csmFile: 'template.json'
