@@ -17,16 +17,16 @@
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2018-05-01",
             "location": "North Europe",
-            "name": "DevOpsDemo1",
+            "name": "DevOpsDemo",
             "properties": {}
         },        
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "webappDeployment",
-            "resourceGroup": "DevOpsDemo1",
+            "resourceGroup": "DevOpsDemo",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups/', 'DevOpsDemo1')]"
+                "[resourceId('Microsoft.Resources/resourceGroups/', 'DevOpsDemo')]"
             ],
             "properties": {
                 "expressionEvaluationOptions": {
