@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "instanceCount": {
+            "type": "int"
+        },
         "sites_webapp_name": {
             //webapp is a default name
             //this name needs to be unique therefore use a namecode
@@ -16,6 +19,17 @@
     },
     "variables": {},
     "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "northeurope",
+            "name": "DevOpsDemo",
+            "copy": {
+                "name": "rgCopy",
+                "count": "[parameters('instanceCount')]"
+            },
+            "properties": {}
+        },
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
