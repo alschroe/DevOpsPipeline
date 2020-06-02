@@ -1,63 +1,68 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
-
+  - master
+  
 pool:
   vmImage: 'windows-latest'
-
-steps:
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-
-- task: AzureResourceManagerTemplateDeployment@3
+  
+variables:
+  buildConfiguration: 'Release'
+  
+steps:  
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK'  #I am using a Windows agent. I will not need to install a .Net Core runtime but here I install a newer SDK version.
   inputs:
-    deploymentScope: 'Resource Group'
-    azureResourceManagerConnection: 'SubscriptionName(Subscription-ID)'
-    subscriptionId: 'Subscription-ID'
-    action: 'Create Or Update Resource Group'
-    resourceGroupName: 'DevOpsDemo'
-    location: 'North Europe'
-    templateLocation: 'Linked artifact'
-    csmFile: 'template.json'
-    deploymentMode: 'Incremental'
+    version: 5.0.x
+    performMultiLevelLookup: true
+    includePreviewVersions: true # Required for preview versions
 
 - task: DotNetCoreCLI@2
-  displayName: Build
+  displayName: Restore #Restore all NuGet packages used in the application
   inputs:
-    command: 'build'
+    command: 'restore'
+    feedsToUse: 'select'
+    vstsFeed: 'my-vsts-feed' # A series of numbers and letters
+
+- task: DotNetCoreCLI@2 
+  displayName: Build #Build .NET Core project
+  inputs:
+    command: build
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)' # Update this to match your need
-
+  
 - task: DotNetCoreCLI@2
-  displayName: Publish
-  inputs:    
+  displayName: Publish #After the App is build, the build output can be uploaded to Azure Pipelines. Here we package the build output into a .zip file to be deployed to web application.
+  inputs:
     command: publish
     publishWebProjects: True
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: 5.0.x
+#- task: AzureWebApp@1
+#  inputs:
+#    azureSubscription: 'AzureInternal (SubId)'
+#    appName: 'devopsnet'
+#    appType: webApp
+#    package: $(System.DefaultWorkingDirectory)/**/*.zip    
 
-- task: AzureRmWebAppDeployment@4
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'SubscriptionName(Subscription-ID)'
-    appType: 'webApp'
-    WebAppName: 'tbd'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+#- script: dotnet build --configuration $(buildConfiguration)
+#  displayName: 'dotnet build $(buildConfiguration)'
+
+#- task: AzureResourceManagerTemplateDeployment@3
+#  inputs: #create ARM Template
+#    deploymentScope: 'Subscription'
+#    azureResourceManagerConnection: 'enter'
+#    subscriptionId: 'enter'
+#    templateLocation: 'Linked artifact'
+#    csmFile: 'template.json'
+#    deploymentMode: 'Incremental'
 
 - task: PublishBuildArtifacts@1
-  inputs:
+  inputs: #upload all the build files into an artifact of the build
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
