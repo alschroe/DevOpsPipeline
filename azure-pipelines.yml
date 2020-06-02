@@ -52,6 +52,11 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/arm.zip'
     replaceExistingArchive: true
 
+- task: CopyFiles@2
+  inputs:
+    Contents: '*/template.json'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/drop'
+
 - task: PublishBuildArtifacts@1
   inputs: #upload all the build files into an artifact of the build
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
