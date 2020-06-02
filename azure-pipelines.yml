@@ -44,10 +44,10 @@ steps:
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: 'DevOpsWebApp/template.json'
+    rootFolderOrFile: ' $(Build.SourcesDirectory)/template.json'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory).zip'
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
