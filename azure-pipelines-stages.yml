@@ -90,7 +90,7 @@ stages:
           - task: ExtractFiles@1
             displayName: 'Extract files '
             inputs:
-              archiveFilePatterns: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/drop/arm.zip'
+              archiveFilePatterns: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/arm.zip'
               destinationFolder: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline'
               cleanDestinationFolder: false
           - task: AzureResourceManagerTemplateDeployment@3
