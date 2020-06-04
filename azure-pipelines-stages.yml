@@ -93,12 +93,11 @@ stages:
               archiveFilePatterns: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/drop/arm.zip'
               destinationFolder: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline'
               cleanDestinationFolder: false
-          - task: AzureResourceManagerTemplateDeployment@2
+          - task: AzureResourceManagerTemplateDeployment@3
             displayName: 'ARM Template deployment: Subscription scope'
             inputs:
               deploymentScope: Subscription
               azureResourceManagerConnection: AzureInternal
-              azureSubscription: AzureInternal
               location: 'North Europe'
               csmFile: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/s/template.json'
               csmParametersFile: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/s/template.json'
