@@ -1,0 +1,108 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+  - master
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+
+- stage: PublishArtifact
+  displayName: 'Publish Artifact'
+  jobs: 
+  - job: Deployment
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+
+    - task: UseDotNet@2
+      displayName: 'Install .NET Core SDK'  #I am using a Windows agent. I will not need to install a .Net Core runtime but here I install a newer SDK version.
+      inputs:
+        version: 5.0.x
+        performMultiLevelLookup: true
+        includePreviewVersions: true # Required for preview versions
+
+    - task: DotNetCoreCLI@2
+      displayName: Restore #Restore all NuGet packages used in the application
+      inputs:
+        command: 'restore'
+
+    - task: DotNetCoreCLI@2 
+      displayName: Build #Build .NET Core project
+      inputs:
+        command: build
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)' # Update this to match your need
+      
+    - task: DotNetCoreCLI@2
+      displayName: Publish #After the App is build, the build output can be uploaded to Azure Pipelines. Here we package the build output into a .zip file to be deployed to web application.
+      inputs:
+        command: publish
+        publishWebProjects: True
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: True
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: ' $(Build.SourcesDirectory)'
+        includeRootFolder: true
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/arm.zip'
+        replaceExistingArchive: true
+
+    - task: CopyFiles@2
+      inputs:
+        Contents: '*/template-wor.json'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/drop'
+
+    - task: PublishBuildArtifacts@1
+      inputs: #upload all the build files into an artifact of the build
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: PreProduction
+  displayName: 'Deploy to Azure'
+  dependsOn: Development
+  condition: succeeded()
+  jobs:
+
+  # track deployments on the environment
+  - deployment: Create Azure environment
+    displayName: 'Create Services and deploy App'
+    pool:
+      vmImage: 'windows-latest'
+
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Artifact'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)' 
+
+          - task: ExtractFiles@1
+            displayName: 'Extract Files'
+            inputs:
+              archiveFilePatterns: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/arm.zip'
+              destinationFolder: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline'
+              cleanDestinationFolder: false
+
+          - task: AzureResourceManagerTemplateDeployment@3
+            displayName: 'Deploy ARM Template'
+            inputs:
+              deploymentScope: Subscription
+              azureResourceManagerConnection: AzureInternal
+              location: 'North Europe'
+              csmFile: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/s/template-wor.json'
+              csmParametersFile: '$(System.DefaultWorkingDirectory)/_alschroe.DevOpsPipeline/s/template-wor.json'
