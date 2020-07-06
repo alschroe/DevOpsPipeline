@@ -24,8 +24,6 @@ steps:
   displayName: Restore #Restore all NuGet packages used in the application
   inputs:
     command: 'restore'
-    #feedsToUse: 'select'
-    #vstsFeed: 'my-vsts-feed' # A series of numbers and letters
 
 - task: DotNetCoreCLI@2 
   displayName: Build #Build .NET Core project
@@ -41,8 +39,6 @@ steps:
     publishWebProjects: True
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
-
-
 
 - task: ArchiveFiles@2
   inputs:
